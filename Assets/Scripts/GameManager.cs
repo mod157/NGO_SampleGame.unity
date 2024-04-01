@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Robotry.Utils;
@@ -9,17 +10,29 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private int playerLife = 3;
     [SerializeField] private float playerMoveSpeed = 100f;
     [SerializeField] private float bulletSpeed = 100f;
-    [Space(10)]
-    
-    [SerializeField] private PlayerController playerA;
-    [SerializeField] private PlayerController playerB;
-    
-    void Update()
+
+    [SerializeField] private List<PlayerController> playerControllerList;
+
+    private bool _isGameStart = false;
+
+    private void Awake()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-           // Shot();
-        }
+        playerControllerList = new List<PlayerController>(2);
+    }
+
+    public void AddController(PlayerController pc)
+    {
+        playerControllerList.Add(pc);
+        
+        if(playerControllerList.Count == 2)
+            GameStart();
+    }
+    
+    public void GameStart()
+    {
+        Debug.Log("Client 2 Game Start");
+        foreach (var controller in playerControllerList)
+            controller.Initialized();
     }
     
     public void GameEnd()
@@ -32,4 +45,5 @@ public class GameManager : Singleton<GameManager>
     public float BulletSpeed =>bulletSpeed;
 
 
+    public bool IsGameStart => _isGameStart;
 }

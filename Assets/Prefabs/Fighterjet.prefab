@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7954534028822948460}
   - component: {fileID: 3659158914638165735}
   - component: {fileID: 2083313237484195681}
-  - component: {fileID: 1689071765483960101}
+  - component: {fileID: 4910375899003213944}
   m_Layer: 5
   m_Name: Fighterjet
   m_TagString: Player
@@ -91,6 +91,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: 0
+  sprites: []
+  networkObject: {fileID: 0}
 --- !u!70 &2083313237484195681
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -126,7 +128,7 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 70}
   m_Size: {x: 30, y: 75}
   m_Direction: 0
---- !u!114 &1689071765483960101
+--- !u!114 &4910375899003213944
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
