@@ -227,7 +227,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4347608387960043623, guid: fe91e03586eeb9b429a813f3992bb430, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3247113429254147601}
+      addedObject: {fileID: 3706406937948521403}
   m_SourcePrefab: {fileID: 100100000, guid: fe91e03586eeb9b429a813f3992bb430, type: 3}
 --- !u!224 &223791072498932212 stripped
 RectTransform:
@@ -239,7 +239,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4347608387960043623, guid: fe91e03586eeb9b429a813f3992bb430, type: 3}
   m_PrefabInstance: {fileID: 1055936082996212131}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3247113429254147601
+--- !u!114 &3706406937948521403
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -248,10 +248,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3671206165743421892}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: af61d6e3c19b47743b9192027d16be78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SyncPositionX: 0
+  SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 0
   SyncRotAngleX: 0
@@ -392,14 +392,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2448724919710975261, guid: acb8b8e7b3986444db138d1ae2c6d991, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6128872029420294358}
+      addedObject: {fileID: 35576777671558220}
   m_SourcePrefab: {fileID: 100100000, guid: acb8b8e7b3986444db138d1ae2c6d991, type: 3}
 --- !u!1 &1522244393083006949 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2448724919710975261, guid: acb8b8e7b3986444db138d1ae2c6d991, type: 3}
   m_PrefabInstance: {fileID: 3808786768725011192}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6128872029420294358
+--- !u!114 &35576777671558220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -408,11 +408,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1522244393083006949}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: af61d6e3c19b47743b9192027d16be78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SyncPositionX: 1
-  SyncPositionY: 0
+  SyncPositionY: 1
   SyncPositionZ: 0
   SyncRotAngleX: 0
   SyncRotAngleY: 0
@@ -428,7 +428,7 @@ MonoBehaviour:
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   Interpolate: 1
-  SlerpPosition: 0
+  SlerpPosition: 1
 --- !u!224 &7133204811567108876 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6207575028605614580, guid: acb8b8e7b3986444db138d1ae2c6d991, type: 3}

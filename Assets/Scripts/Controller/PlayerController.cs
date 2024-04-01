@@ -44,6 +44,14 @@ public class PlayerController : NetworkBehaviour
     
     void Update()
     {
+        //Position Error 발생 시 Reset
+
+        if (_rectTransform.anchoredPosition.y != 0)
+        {
+            Debug.Log(playerName+ "_"+ _rectTransform.anchoredPosition);
+            _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, 0);
+        }
+
         if (GameManager.Instance.IsGameStart || !networkObject.IsOwner) return;
         
         if (Input.GetKey(KeyCode.LeftArrow))
@@ -55,6 +63,8 @@ public class PlayerController : NetworkBehaviour
         {
             Move(Vector3.right);
         }
+        
+        
     }
 
     public void Initialized()
@@ -69,7 +79,6 @@ public class PlayerController : NetworkBehaviour
             _rectTransform.anchorMin = new Vector2(0.5f, 0);
             _rectTransform.anchorMax = new Vector2(0.5f, 0);
             
-            _rectTransform.anchoredPosition = Vector3.zero;
         }
         else
         {
@@ -80,9 +89,24 @@ public class PlayerController : NetworkBehaviour
             _rectTransform.anchorMin = new Vector2(0.5f, 1);
             _rectTransform.anchorMax = new Vector2(0.5f, 1);
             _rectTransform.localRotation = Quaternion.Euler(180,0,0);
-            
-            _rectTransform.anchoredPosition = Vector3.zero;
-            
+        }
+
+        UpdatePositionClientRpc(Player.PlayerB, Vector3.zero);
+    }
+    
+    [ServerRpc]
+    void UpdatePositionServerRpc(Vector3 newPosition)
+    {
+        // 서버에서 위치 업데이트를 호출하여 모든 클라이언트에게 전달
+        UpdatePositionClientRpc(Player.PlayerB, newPosition);
+    }
+
+    [ClientRpc]
+    void UpdatePositionClientRpc(Player updatePlayer, Vector3 newPosition)
+    {
+        if (updatePlayer == playerName)
+        {
+            _rectTransform.anchoredPosition = newPosition;
         }
     }
 
@@ -97,6 +121,8 @@ public class PlayerController : NetworkBehaviour
                 _rectTransform.position -= direction * (_moveSpeed * Time.deltaTime);
                 break;
         }
+        
+        UpdatePositionClientRpc(playerName, _rectTransform.position);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
