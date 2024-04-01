@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,19 +7,32 @@ using UnityEngine;
 [RequireComponent(typeof (CircleCollider2D))]
 public class BulletController : MonoBehaviour
 {
-    public float force = 10f; // 점프 힘
+    private float force;
     private Rigidbody2D _rb;
 
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        force = GameManager.Instance.BulletSpeed;
     }
 
-    void Update()
+    
+    
+    private void LateUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        Vector3 screenPoint = Camera.main.WorldToViewportPoint(transform.position);
+
+        if (screenPoint.x < 0 || screenPoint.x > 1 || screenPoint.y < 0 || screenPoint.y > 1)
         {
-            _rb.velocity = Vector2.up * force;
+            (transform as RectTransform).localPosition = Vector3.zero;
+            gameObject.SetActive(false);
         }
+    }
+    
+    private void Shot()
+    {
+        Debug.Assert(force == GameManager.Instance.BulletSpeed);
+        gameObject.SetActive(true);
+        _rb.velocity = Vector2.up * force;
     }
 }

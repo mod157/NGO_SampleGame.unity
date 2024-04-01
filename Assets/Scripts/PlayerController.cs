@@ -8,11 +8,17 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    private PlayerName resolutionDropdown;
+    private PlayerName playerName;
     
     private int _life;
     private float _moveSpeed;
-    
+
+    private void Start()
+    {
+        _life = GameManager.Instance.PlayerLife;
+        _moveSpeed = GameManager.Instance.PlayerMoveSpeed;
+    }
+
     private enum PlayerName
     {
         PlayerA,
@@ -34,15 +40,24 @@ public class PlayerController : MonoBehaviour
 
     void Move(Vector3 direction)
     {
-        Debug.Log(Time.deltaTime);
-        transform.position += direction * (_moveSpeed * Time.deltaTime);
+        switch (playerName)
+        {
+            case PlayerName.PlayerA:
+                transform.position += direction * (_moveSpeed * Time.deltaTime);
+                break;
+            case PlayerName.PlayerB:
+                
+                transform.position -= direction * (_moveSpeed * Time.deltaTime);
+                break;
+            
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Bullet"))
         {
-            Debug.Log(other.transform.parent.name);
+            ApplyDamage();
         }
     }
     
