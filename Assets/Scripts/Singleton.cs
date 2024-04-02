@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Robotry.Utils
 {
-    public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
+    public class Singleton<T> : NetworkBehaviour where T : NetworkBehaviour
     {
         private static T instance;
         private static object syncobj = new object();

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,7 +9,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private ulong clientID;
     [SerializeField] private Player playerName;
     [SerializeField] private Sprite[] sprites;
-
+    [SerializeField] private List<GameObject> lifeList;
+    
     private BulletSpawner _bulletSpawner;
     private NetworkObject _networkObject;
     private ClientNetworkTransform _clientNetworkTransform;
@@ -62,17 +64,17 @@ public class PlayerController : NetworkBehaviour
         
         if (Input.GetKey(KeyCode.T))
         {
-            UpdatePositionServerRpc(_networkObject.OwnerClientId.ToString());
-            UpdatePositionClientRpc(_networkObject.OwnerClientId.ToString());
+            UpdateLifeServerRpc("Life");
         }
     }
     
     private void OnTriggerEnter(Collider other)
     {
+        if (!IsOwner) return;
+        
         if (other.CompareTag("Bullet"))
         {
-            ApplyDamage();
-            //other.gameObject.SetActive(false);
+            UpdateLifeServerRpc("Hit");
         }
     }
     
@@ -87,7 +89,7 @@ public class PlayerController : NetworkBehaviour
             transform.name = "PlayerA";
             _spriteRenderer.sprite = sprites[0];
             transform.rotation = Quaternion.Euler(0,0,0);
-            transform.position = new Vector3(0f, -20f, 0f);
+            transform.position = new Vector3(0f, -15f, 0f);
         }
         
         if (_networkObject.OwnerClientId == 1)
@@ -96,7 +98,7 @@ public class PlayerController : NetworkBehaviour
             transform.name = "PlayerB";
             _spriteRenderer.sprite = sprites[1];
             transform.rotation = Quaternion.Euler(180,0,0);
-            transform.position = new Vector3(0f, 22f, 0f);
+            transform.position = new Vector3(0f, 18f, 0f);
         }
         
         if (_networkObject.IsOwner)
@@ -112,45 +114,6 @@ public class PlayerController : NetworkBehaviour
         {
             Camera.main.transform.rotation = Quaternion.Euler(0f,0f,180f);
         }
-        
-       /* if (_networkObject.IsOwner)
-        {
-            playerName = Player.PlayerA;
-            transform.name = "PlayerA";
-            _spriteRenderer.sprite = sprites[0];
-            transform.rotation = Quaternion.Euler(0,0,0);
-            transform.position = new Vector3(0f, -20f, 0f);
-
-            enabled = true;
-        }
-        else
-        {
-            playerName = Player.PlayerB;
-            transform.name = "PlayerB";
-            _spriteRenderer.sprite = sprites[1];
-            transform.rotation = Quaternion.Euler(180,0,0);
-            transform.position = new Vector3(0f, 22f, 0f);
-            
-            enabled = false;
-        }*/
-    }
-
-    [ServerRpc]
-    private void ShootServerRpc()
-    {
-        
-    }
-    
-    [ServerRpc]
-    public void UpdatePositionServerRpc(string message)
-    {
-        Debug.Log("ServerRpc - " + message);
-    } 
-
-    [ClientRpc]
-    public void UpdatePositionClientRpc(string message)
-    {
-        Debug.Log("ClientRpc - " + message);
     }
 
     private void Move(Vector3 direction)
@@ -175,19 +138,25 @@ public class PlayerController : NetworkBehaviour
         _isDelay = true;
         
         Debug.Log(playerName + " - Shot");
-        BulletController bulletController = _bulletSpawner.GetBullet();
-       // Vector3 objectSize = _spriteRenderer.sprite.bounds.size;
-        bulletController.Shot( new Vector3(transform.position.x, transform.position.y + _spriteRenderer.size.y,0f)); // + new Vector3(0f, objectSize.y, 0f));
+        _bulletSpawner.Shot(new Vector3(transform.position.x, transform.position.y + _spriteRenderer.size.y,0f));
     }
-    
     
     private void ApplyDamage()
     {
-        _life -= 1;
-        if (_life == 0)
+        GameObject selectLifeObjet = null;
+        foreach (var life in lifeList)
         {
-            GameManager.Instance.GameEnd();
+            if (life.activeSelf)
+            {
+                selectLifeObjet = life;
+                break;
+            }
         }
+
+        if (selectLifeObjet != null)
+            selectLifeObjet.SetActive(false);
+        else
+            GameManager.Instance.GameEnd();
     }
 
     IEnumerator ShotDelay()
@@ -203,6 +172,19 @@ public class PlayerController : NetworkBehaviour
             yield return new WaitForEndOfFrame();
         }
     }
+    
+    [ServerRpc]
+    public void UpdateLifeServerRpc(string message)
+    {
+        Debug.Log("ServerRpc - " + message);
+        UpdateLifeClientRpc(message);
+    } 
 
+    [ClientRpc]
+    public void UpdateLifeClientRpc(string message)
+    {
+        Debug.Log("ClientRpc - " + message);
+        ApplyDamage();
+    }
     public ulong ClientID => clientID;
 }

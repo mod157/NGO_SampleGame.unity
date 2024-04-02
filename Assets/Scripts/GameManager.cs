@@ -9,20 +9,16 @@ public class GameManager : Singleton<GameManager>
 {
     [Header("PlayerOption")]
     [SerializeField] private int playerLife = 3;
-    [SerializeField] private float playerMoveSpeed = 100f;
-    [SerializeField] private float bulletSpeed = 500f;
+    [SerializeField] private float playerMoveSpeed = 50f;
+    [SerializeField] private float bulletSpeed = 50f;
     [SerializeField] private float shotDelay = 0.25f;
-
-    [SerializeField] private List<PlayerController> playerControllerList;
     
-
     private NetworkVariable<int> playerNum = new NetworkVariable<int>();
 
     private bool _isGameStart = false;
 
     private void Awake()
     {
-        playerControllerList = new List<PlayerController>(2);
         StartCoroutine(GameReady());
     }
 
@@ -43,10 +39,6 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("GameEnd");
         _isGameStart = false;
     }
-    
-   
-
-    
 
     private IEnumerator GameReady()
     {
@@ -66,8 +58,6 @@ public class GameManager : Singleton<GameManager>
     public float PlayerMoveSpeed => playerMoveSpeed;
     public float BulletSpeed => bulletSpeed;
     public float ShotDelay => shotDelay;
-    
     public bool IsGameStart => _isGameStart;
-
     public int PlayerCount => playerNum.Value;
 }
