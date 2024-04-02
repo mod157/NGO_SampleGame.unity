@@ -19,23 +19,36 @@ public class BulletController : NetworkBehaviour
         Disable();
     }
 
-   private void LateUpdate()
-   { 
-       /*if (transform.position.y < _minY || transform.position.y > _maxY)
-       { 
-           Debug.Log("Bullet Out");
-           _rectTransform.position = Vector3.zero;
-           Disable();
-       }*/
+    private void Update()
+    {
+        Debug.DrawRay(transform.position, transform.up, Color.green);
     }
+
+    void FixedUpdate()
+    {
+        _rb.velocity = transform.up * _force;
+    } 
     
+    private void LateUpdate()
+    { 
+       Vector3 viewportPosition = Camera.main.WorldToViewportPoint(transform.position);
+
+       Debug.Log("Bullet Position - " + viewportPosition);
+       if (viewportPosition.x < 0 || viewportPosition.x > 1 || viewportPosition.y < 0 || viewportPosition.y > 1)
+       {
+           Debug.Log("Bullet Out");
+           transform.position = Vector3.zero;
+           Disable();
+       }
+    }
+   
     public void Shot(Vector3 position)
     {
         transform.position = position;
         Enable();
-        _rb.velocity = Vector3.up * _force;
+        _rb.isKinematic = false;
     }
-
+    
     private void Enable()
     {
         gameObject.SetActive(true);

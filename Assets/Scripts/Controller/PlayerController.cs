@@ -27,6 +27,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Awake()
     {
+        _bulletSpawner = GetComponent<BulletSpawner>();
         _networkObject = GetComponent<NetworkObject>();
         _clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -71,6 +72,7 @@ public class PlayerController : NetworkBehaviour
         if (other.CompareTag("Bullet"))
         {
             ApplyDamage();
+            //other.gameObject.SetActive(false);
         }
     }
     
@@ -175,7 +177,7 @@ public class PlayerController : NetworkBehaviour
         Debug.Log(playerName + " - Shot");
         BulletController bulletController = _bulletSpawner.GetBullet();
        // Vector3 objectSize = _spriteRenderer.sprite.bounds.size;
-        bulletController.Shot(transform.localPosition); // + new Vector3(0f, objectSize.y, 0f));
+        bulletController.Shot( new Vector3(transform.position.x, transform.position.y + _spriteRenderer.size.y,0f)); // + new Vector3(0f, objectSize.y, 0f));
     }
     
     

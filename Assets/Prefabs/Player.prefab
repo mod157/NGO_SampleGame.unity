@@ -392,8 +392,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df93bf6722490c34fa949a0023c46b27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletObj: {fileID: 0}
-  bulletParentTransform: {fileID: 0}
+  bulletObj: {fileID: 29121193854804563, guid: 9b428190cacfab24a94425b177a20d27, type: 3}
+  bulletParentTransform: {fileID: 7789175021613997572}
   bulletControllerList: []
 --- !u!1 &6826675703634132345
 GameObject:

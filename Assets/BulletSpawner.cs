@@ -31,9 +31,9 @@ public class BulletSpawner : NetworkBehaviour
     {
         GameObject newBullet = Instantiate(bulletObj, bulletParentTransform);
         NetworkObject no = newBullet.GetComponent<NetworkObject>();
+        bool isParent = no.TrySetParent(bulletParentTransform);
         no.Spawn(true);
         
-        bool isParent = no.TrySetParent(bulletParentTransform);
         BulletController newBulletController = newBullet.GetComponent<BulletController>();
         return newBulletController;
     }
