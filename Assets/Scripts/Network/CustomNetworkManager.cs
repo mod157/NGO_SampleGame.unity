@@ -26,7 +26,7 @@ public class CustomNetworkManager : MonoBehaviour
         {
             _networkManager.DisconnectClient(ClientId);
         }
-        
+
         if (IsClient)
         {
             Debug.Log($"Local client {ClientId} connected, waiting for other players...");
@@ -36,7 +36,7 @@ public class CustomNetworkManager : MonoBehaviour
             Debug.Log($"Remote client {ClientId} connected");
         }
     }
-    
+
     private void OnClientDisconnected(ulong ClientId)
     {
         Debug.Log($"Client {ClientId} disconnected");
