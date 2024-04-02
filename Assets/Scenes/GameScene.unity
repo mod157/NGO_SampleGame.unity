@@ -1121,8 +1121,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerLife: 3
-  playerMoveSpeed: 100
-  bulletSpeed: 100
+  playerMoveSpeed: 200
+  bulletSpeed: 500
   shotDelay: 0.25
   playerControllerList: []
   bulletObj: {fileID: 4347608387960043623, guid: fe91e03586eeb9b429a813f3992bb430, type: 3}

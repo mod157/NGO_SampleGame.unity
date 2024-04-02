@@ -51,9 +51,12 @@ public class GameManager : Singleton<GameManager>
             if (!bullet.gameObject.activeSelf)
                 currentBulletController = bullet;
         }
-        
-        if(currentBulletController == null)
+
+        if (currentBulletController == null)
+        {
             currentBulletController = CreateBullet();
+            bulletControllerList.Add(currentBulletController);
+        }
 
         return currentBulletController;
     }

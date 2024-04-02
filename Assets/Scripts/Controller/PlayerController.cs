@@ -130,7 +130,6 @@ public class PlayerController : NetworkBehaviour
                 break;
         }
         
-        Debug.Log(_rectTransform.position);
         _rectTransform.position = new Vector3(Mathf.Clamp(_rectTransform.position.x, _minX, _maxX), 0f, 0f);
     }
     
@@ -158,13 +157,9 @@ public class PlayerController : NetworkBehaviour
     private void MoveWithInBound()
     {
         RectTransform canvasRect = transform.parent.GetComponent<RectTransform>();
-        // Canvas의 크기 계산
-        float canvasWidth = canvasRect.rect.width;
-        float canvasHeight = canvasRect.rect.height;
-
         
-        Debug.Log(canvasWidth + "/" + canvasHeight);
-        // Canvas의 크기를 이동 가능한 영역으로 설정
+        float canvasWidth = canvasRect.rect.width;
+        
         _minX = MARGIN;
         _maxX = canvasWidth - MARGIN;
     }
