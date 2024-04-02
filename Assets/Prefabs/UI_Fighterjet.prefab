@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2083313237484195681}
   - component: {fileID: 998642352417706181}
   m_Layer: 5
-  m_Name: Fighterjet
+  m_Name: UI_Fighterjet
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

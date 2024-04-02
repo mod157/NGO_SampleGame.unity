@@ -1,54 +1,39 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
 
-[RequireComponent(typeof (NetworkRigidbody2D))]
-[RequireComponent(typeof (CircleCollider2D))]
-public class BulletController : MonoBehaviour
+[RequireComponent(typeof (CapsuleCollider))]
+public class BulletController : NetworkBehaviour
 {
-    private float force;
-    private Rigidbody2D _rb;
-    private RectTransform _rectTransform;
-    private Vector3 _screenPoint;
+    private float _force;
+    private Rigidbody _rb;
     private float _minY, _maxY;
 
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody2D>();
-        _rectTransform = GetComponent<RectTransform>();
-        force = GameManager.Instance.BulletSpeed;
-        _screenPoint = Camera.main.WorldToViewportPoint(transform.position);
-        MoveWithInBound();
+        _rb = GetComponent<Rigidbody>();
+        _force = GameManager.Instance.BulletSpeed;
         Disable();
     }
 
    private void LateUpdate()
    { 
-       if (transform.position.y < _minY || transform.position.y > _maxY)
+       /*if (transform.position.y < _minY || transform.position.y > _maxY)
        { 
            Debug.Log("Bullet Out");
            _rectTransform.position = Vector3.zero;
            Disable();
-       }
+       }*/
     }
     
     public void Shot(Vector3 position)
     {
-        _rectTransform.localPosition = position;
+        transform.position = position;
         Enable();
-        _rb.velocity = Vector2.up * force;
-    }
-    
-    private void MoveWithInBound()
-    {
-        RectTransform canvasRect = transform.parent.GetComponent<RectTransform>();
-        float canvasHeight = canvasRect.rect.height;
-
-        _minY = 0;
-        _maxY = canvasHeight;
-        
+        _rb.velocity = Vector3.up * _force;
     }
 
     private void Enable()

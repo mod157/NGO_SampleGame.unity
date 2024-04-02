@@ -1,23 +1,18 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Transactions;
 using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerController : NetworkBehaviour
 {
-    private const int MARGIN = 25;
     [SerializeField] private ulong clientID;
     [SerializeField] private Player playerName;
     [SerializeField] private Sprite[] sprites;
-    [SerializeField] private NetworkObject networkObject;
 
+    private BulletSpawner _bulletSpawner;
+    private NetworkObject _networkObject;
     private ClientNetworkTransform _clientNetworkTransform;
-    private RectTransform _rectTransform;
-    private Image _image;
+    private SpriteRenderer _spriteRenderer;
     private int _life;
     private float _moveSpeed;
     private float _shotDelay;
@@ -32,25 +27,22 @@ public class PlayerController : NetworkBehaviour
 
     private void Awake()
     {
+        _networkObject = GetComponent<NetworkObject>();
         _clientNetworkTransform = GetComponent<ClientNetworkTransform>();
-        _rectTransform = GetComponent<RectTransform>();
-        _image = GetComponent<Image>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
         _life = GameManager.Instance.PlayerLife;
         _moveSpeed = GameManager.Instance.PlayerMoveSpeed;
         _shotDelay = GameManager.Instance.ShotDelay;
-        MoveWithInBound();
     }
 
     private void Start()
     {
-       GameManager.Instance.AddController(this);
-
        StartCoroutine(ShotDelay());
     }
     
     private void Update()
     {
-        if (GameManager.Instance.IsGameStart || !networkObject.IsOwner) return;
+        if (!IsOwner) return;
         
         if (Input.GetKey(KeyCode.LeftArrow))
         {
@@ -66,9 +58,15 @@ public class PlayerController : NetworkBehaviour
         {
             Shooting();
         }
+        
+        if (Input.GetKey(KeyCode.T))
+        {
+            UpdatePositionServerRpc(_networkObject.OwnerClientId.ToString());
+            UpdatePositionClientRpc(_networkObject.OwnerClientId.ToString());
+        }
     }
     
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Bullet"))
         {
@@ -79,43 +77,78 @@ public class PlayerController : NetworkBehaviour
     //Owner일 때 위치 설정
     public override void OnNetworkSpawn()
     {
-        if (networkObject.IsOwner)
+        clientID = _networkObject.OwnerClientId;
+        
+        if (_networkObject.OwnerClientId == 0)
         {
             playerName = Player.PlayerA;
-            _image.sprite = sprites[0];
-            
-            _rectTransform.parent.name = "PlayerA";
-            _rectTransform.anchorMin = new Vector2(0.5f, 0);
-            _rectTransform.anchorMax = new Vector2(0.5f, 0);
-            _rectTransform.pivot = new Vector2(0.5f, 0);
-            
-            _rectTransform.anchoredPosition = Vector2.zero;
+            transform.name = "PlayerA";
+            _spriteRenderer.sprite = sprites[0];
+            transform.rotation = Quaternion.Euler(0,0,0);
+            transform.position = new Vector3(0f, -20f, 0f);
+        }
+        
+        if (_networkObject.OwnerClientId == 1)
+        {
+            playerName = Player.PlayerB;
+            transform.name = "PlayerB";
+            _spriteRenderer.sprite = sprites[1];
+            transform.rotation = Quaternion.Euler(180,0,0);
+            transform.position = new Vector3(0f, 22f, 0f);
+        }
+        
+        if (_networkObject.IsOwner)
+            enabled = true;
+        else
+            enabled = false;
+
+        if (IsServer)
+        {
+            Camera.main.transform.rotation = Quaternion.identity;
+        }
+        else
+        {
+            Camera.main.transform.rotation = Quaternion.Euler(0f,0f,180f);
+        }
+        
+       /* if (_networkObject.IsOwner)
+        {
+            playerName = Player.PlayerA;
+            transform.name = "PlayerA";
+            _spriteRenderer.sprite = sprites[0];
+            transform.rotation = Quaternion.Euler(0,0,0);
+            transform.position = new Vector3(0f, -20f, 0f);
+
+            enabled = true;
         }
         else
         {
             playerName = Player.PlayerB;
-            _image.sprite = sprites[1];
-            
-            _rectTransform.parent.name = "PlayerB";
-            _rectTransform.anchorMin = new Vector2(0.5f, 1);
-            _rectTransform.anchorMax = new Vector2(0.5f, 1);
-            _rectTransform.pivot = new Vector2(0.5f, 0);
-            _rectTransform.localRotation = Quaternion.Euler(180,0,0);
-            
-            _rectTransform.anchoredPosition = Vector2.zero;
+            transform.name = "PlayerB";
+            _spriteRenderer.sprite = sprites[1];
+            transform.rotation = Quaternion.Euler(180,0,0);
+            transform.position = new Vector3(0f, 22f, 0f);
             
             enabled = false;
-        }
+        }*/
     }
 
     [ServerRpc]
-    void UpdatePositionServerRpc(Player updatePlayer, Vector3 newPosition)
+    private void ShootServerRpc()
     {
+        
     }
+    
+    [ServerRpc]
+    public void UpdatePositionServerRpc(string message)
+    {
+        Debug.Log("ServerRpc - " + message);
+    } 
 
     [ClientRpc]
-    void UpdatePositionClientRpc(Player updatePlayer, Vector3 newPosition)
+    public void UpdatePositionClientRpc(string message)
     {
+        Debug.Log("ClientRpc - " + message);
     }
 
     private void Move(Vector3 direction)
@@ -123,25 +156,26 @@ public class PlayerController : NetworkBehaviour
         switch (playerName)
         {
             case Player.PlayerA:
-                _rectTransform.position += direction * (_moveSpeed * Time.deltaTime);
+                transform.position += direction * (_moveSpeed * Time.deltaTime);
                 break;
             case Player.PlayerB:
-                _rectTransform.position -= direction * (_moveSpeed * Time.deltaTime);
+                transform.position -= direction * (_moveSpeed * Time.deltaTime);
                 break;
         }
         
-        _rectTransform.position = new Vector3(Mathf.Clamp(_rectTransform.position.x, _minX, _maxX), 0f, 0f);
+        //transform.position = new Vector3(Mathf.Clamp(transform.position.x, _minX, _maxX), 0f, 0f);
     }
     
     private void Shooting()
     {
         if (_isDelay) return;
+        
         _isDelay = true;
         
         Debug.Log(playerName + " - Shot");
-        BulletController bulletController = GameManager.Instance.GetBullet();
-        Vector2 objectSize = _rectTransform.sizeDelta;
-        bulletController.Shot(_rectTransform.localPosition + new Vector3(0f, objectSize.y, 0f));
+        BulletController bulletController = _bulletSpawner.GetBullet();
+       // Vector3 objectSize = _spriteRenderer.sprite.bounds.size;
+        bulletController.Shot(transform.localPosition); // + new Vector3(0f, objectSize.y, 0f));
     }
     
     
@@ -152,16 +186,6 @@ public class PlayerController : NetworkBehaviour
         {
             GameManager.Instance.GameEnd();
         }
-    }
-
-    private void MoveWithInBound()
-    {
-        RectTransform canvasRect = transform.parent.GetComponent<RectTransform>();
-        
-        float canvasWidth = canvasRect.rect.width;
-        
-        _minX = MARGIN;
-        _maxX = canvasWidth - MARGIN;
     }
 
     IEnumerator ShotDelay()
@@ -176,6 +200,7 @@ public class PlayerController : NetworkBehaviour
 
             yield return new WaitForEndOfFrame();
         }
-
     }
+
+    public ulong ClientID => clientID;
 }

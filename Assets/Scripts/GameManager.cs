@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Robotry.Utils;
+using Unity.Netcode;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
@@ -14,66 +15,59 @@ public class GameManager : Singleton<GameManager>
 
     [SerializeField] private List<PlayerController> playerControllerList;
     
-    [SerializeField] private GameObject bulletObj;
-    [SerializeField] private RectTransform bulletParentTransform;
-    [SerializeField] private List<BulletController> bulletControllerList;
+
+    private NetworkVariable<int> playerNum = new NetworkVariable<int>();
 
     private bool _isGameStart = false;
 
     private void Awake()
     {
         playerControllerList = new List<PlayerController>(2);
+        StartCoroutine(GameReady());
     }
 
-    public void AddController(PlayerController pc)
+    private void Update()
     {
-        playerControllerList.Add(pc);
-        
-        if(playerControllerList.Count == 2)
-            GameStart();
+        if(NetworkManager.Singleton.IsServer)
+            playerNum.Value = NetworkManager.Singleton.ConnectedClients.Count;
     }
     
     public void GameStart()
     {
         Debug.Log("Client 2 Game Start");
+        _isGameStart = true;
     }
     
     public void GameEnd()
     {
         Debug.Log("GameEnd");
+        _isGameStart = false;
     }
+    
+   
 
-    public BulletController GetBullet()
+    
+
+    private IEnumerator GameReady()
     {
-        BulletController currentBulletController = null;
-        foreach (var bullet in bulletControllerList)
+        while (true)
         {
-            if (!bullet.gameObject.activeSelf)
-                currentBulletController = bullet;
+            if (playerNum.Value == 2 && !_isGameStart)
+            {
+                GameStart();
+                break;
+            }
+
+            yield return new WaitForEndOfFrame();
         }
-
-        if (currentBulletController == null)
-        {
-            currentBulletController = CreateBullet();
-            bulletControllerList.Add(currentBulletController);
-        }
-
-        return currentBulletController;
     }
-
-    private BulletController CreateBullet()
-    {
-        GameObject newBullet = Instantiate(bulletObj, bulletParentTransform);
-        BulletController newBulletController = newBullet.GetComponent<BulletController>();
-
-        return newBulletController;
-    }
-
+    
     public int PlayerLife => playerLife;
     public float PlayerMoveSpeed => playerMoveSpeed;
     public float BulletSpeed => bulletSpeed;
     public float ShotDelay => shotDelay;
-
-
+    
     public bool IsGameStart => _isGameStart;
+
+    public int PlayerCount => playerNum.Value;
 }
