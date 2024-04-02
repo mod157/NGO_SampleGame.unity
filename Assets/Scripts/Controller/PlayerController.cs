@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 public class PlayerController : NetworkBehaviour
 {
+    private const int MARGIN = 25;
     [SerializeField] private ulong clientID;
     [SerializeField] private Player playerName;
     [SerializeField] private Sprite[] sprites;
@@ -21,6 +22,7 @@ public class PlayerController : NetworkBehaviour
     private float _moveSpeed;
     private float _shotDelay;
     private bool _isDelay;
+    private float _minX, _maxX;
     
     private enum Player
     {
@@ -36,7 +38,7 @@ public class PlayerController : NetworkBehaviour
         _life = GameManager.Instance.PlayerLife;
         _moveSpeed = GameManager.Instance.PlayerMoveSpeed;
         _shotDelay = GameManager.Instance.ShotDelay;
-
+        MoveWithInBound();
     }
 
     private void Start()
@@ -73,8 +75,8 @@ public class PlayerController : NetworkBehaviour
             ApplyDamage();
         }
     }
-
-
+    
+    //Owner일 때 위치 설정
     public override void OnNetworkSpawn()
     {
         if (networkObject.IsOwner)
@@ -127,6 +129,9 @@ public class PlayerController : NetworkBehaviour
                 _rectTransform.position -= direction * (_moveSpeed * Time.deltaTime);
                 break;
         }
+        
+        Debug.Log(_rectTransform.position);
+        _rectTransform.position = new Vector3(Mathf.Clamp(_rectTransform.position.x, _minX, _maxX), 0f, 0f);
     }
     
     private void Shooting()
@@ -148,6 +153,20 @@ public class PlayerController : NetworkBehaviour
         {
             GameManager.Instance.GameEnd();
         }
+    }
+
+    private void MoveWithInBound()
+    {
+        RectTransform canvasRect = transform.parent.GetComponent<RectTransform>();
+        // Canvas의 크기 계산
+        float canvasWidth = canvasRect.rect.width;
+        float canvasHeight = canvasRect.rect.height;
+
+        
+        Debug.Log(canvasWidth + "/" + canvasHeight);
+        // Canvas의 크기를 이동 가능한 영역으로 설정
+        _minX = MARGIN;
+        _maxX = canvasWidth - MARGIN;
     }
 
     IEnumerator ShotDelay()
