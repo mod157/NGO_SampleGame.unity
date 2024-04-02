@@ -12,7 +12,9 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private float playerMoveSpeed = 50f;
     [SerializeField] private float bulletSpeed = 50f;
     [SerializeField] private float shotDelay = 0.25f;
-    
+
+
+    [SerializeField] private BulletSpawner bulletSpawner;
     private NetworkVariable<int> playerNum = new NetworkVariable<int>();
 
     private bool _isGameStart = false;
@@ -60,4 +62,6 @@ public class GameManager : Singleton<GameManager>
     public float ShotDelay => shotDelay;
     public bool IsGameStart => _isGameStart;
     public int PlayerCount => playerNum.Value;
+
+    public BulletSpawner BulletSpawner => bulletSpawner;
 }

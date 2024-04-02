@@ -26,16 +26,58 @@ public class PlayerController : NetworkBehaviour
         PlayerA,
         PlayerB
     }
-
+    
     private void Awake()
     {
-        _bulletSpawner = GetComponent<BulletSpawner>();
+        _bulletSpawner = GameManager.Instance.BulletSpawner;
         _networkObject = GetComponent<NetworkObject>();
         _clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _life = GameManager.Instance.PlayerLife;
         _moveSpeed = GameManager.Instance.PlayerMoveSpeed;
         _shotDelay = GameManager.Instance.ShotDelay;
+    }
+    private void Initialize()
+    {
+        clientID = _networkObject.OwnerClientId;
+        
+        if (_networkObject.OwnerClientId == 0)
+        {
+            playerName = Player.PlayerA;
+            transform.name = "PlayerA";
+            _spriteRenderer.sprite = sprites[0];
+            transform.rotation = Quaternion.Euler(0,0,0);
+            transform.position = new Vector3(0f, -15f, 0f);
+        }
+        
+        if (_networkObject.OwnerClientId >= 1)
+        {
+            playerName = Player.PlayerB;
+            transform.name = "PlayerB";
+            _spriteRenderer.sprite = sprites[1];
+            transform.rotation = Quaternion.Euler(180,0,0);
+            transform.position = new Vector3(0f, 18f, 0f);
+        }
+        
+        if (_networkObject.IsOwner)
+            enabled = true;
+        else
+            enabled = false;
+
+        if (IsServer)
+        {
+            Camera.main.transform.rotation = Quaternion.identity;
+        }
+        else
+        {
+            Camera.main.transform.rotation = Quaternion.Euler(0f,0f,180f);
+        }
+    }
+    //Owner일 때 위치 설정
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        Initialize();
     }
 
     private void Start()
@@ -45,7 +87,7 @@ public class PlayerController : NetworkBehaviour
     
     private void Update()
     {
-        if (!IsOwner) return;
+        if (!IsOwner || !Application.isFocused) return;
         
         if (Input.GetKey(KeyCode.LeftArrow))
         {
@@ -77,44 +119,8 @@ public class PlayerController : NetworkBehaviour
             UpdateLifeServerRpc("Hit");
         }
     }
-    
-    //Owner일 때 위치 설정
-    public override void OnNetworkSpawn()
-    {
-        clientID = _networkObject.OwnerClientId;
-        
-        if (_networkObject.OwnerClientId == 0)
-        {
-            playerName = Player.PlayerA;
-            transform.name = "PlayerA";
-            _spriteRenderer.sprite = sprites[0];
-            transform.rotation = Quaternion.Euler(0,0,0);
-            transform.position = new Vector3(0f, -15f, 0f);
-        }
-        
-        if (_networkObject.OwnerClientId == 1)
-        {
-            playerName = Player.PlayerB;
-            transform.name = "PlayerB";
-            _spriteRenderer.sprite = sprites[1];
-            transform.rotation = Quaternion.Euler(180,0,0);
-            transform.position = new Vector3(0f, 18f, 0f);
-        }
-        
-        if (_networkObject.IsOwner)
-            enabled = true;
-        else
-            enabled = false;
 
-        if (IsServer)
-        {
-            Camera.main.transform.rotation = Quaternion.identity;
-        }
-        else
-        {
-            Camera.main.transform.rotation = Quaternion.Euler(0f,0f,180f);
-        }
-    }
+   
 
     private void Move(Vector3 direction)
     {
@@ -138,7 +144,7 @@ public class PlayerController : NetworkBehaviour
         _isDelay = true;
         
         Debug.Log(playerName + " - Shot");
-        _bulletSpawner.Shot(new Vector3(transform.position.x, transform.position.y + _spriteRenderer.size.y,0f));
+        _bulletSpawner.SpawnBullet(transform.position, _spriteRenderer.size);
     }
     
     private void ApplyDamage()

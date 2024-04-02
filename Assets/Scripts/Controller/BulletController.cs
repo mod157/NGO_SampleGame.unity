@@ -9,8 +9,8 @@ using UnityEngine;
 [RequireComponent(typeof (CapsuleCollider))]
 public class BulletController : NetworkBehaviour
 {
-    public BulletSpawner parent;
-    private NetworkObject _networkObject;
+    [SerializeField] private NetworkObject _networkObject;
+    [SerializeField] private GameObject _prefab;
     private float _force;
     private Rigidbody _rb;
     private float _minY, _maxY;
@@ -18,77 +18,46 @@ public class BulletController : NetworkBehaviour
 
     private void Awake()
     {
-        _networkObject = GetComponent<NetworkObject>();
         _rb = GetComponent<Rigidbody>();
         _force = GameManager.Instance.BulletSpeed;
     }
 
+    public override void OnNetworkSpawn()
+    {
+        _rb.isKinematic = false;
+    }
 
     private void FixedUpdate()
     {
-        _rb.velocity = _direction * _force;
-    } 
-    
-    /*private void LateUpdate()
-    { 
-       Vector3 viewportPosition = Camera.main.WorldToViewportPoint(transform.position);
-
-       if (viewportPosition.x < 0 || viewportPosition.x > 1 || viewportPosition.y < 0 || viewportPosition.y > 1)
-       {
-           Debug.Log("Bullet Out");
-           //transform.position = Vector3.zero;
-           _rb.isKinematic = true;
-           DisableServerRpc();
-       }
-    }*/
+        _rb.velocity = transform.up * _force;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Wall"))
-        {
-            Debug.Log("Bullet Out");
-            _rb.isKinematic = true;
-            DisableServerRpc();
-        }
+        if (!other.CompareTag("Wall")) return;
+        //if (!NetworkManager.Singleton.IsServer) return;
+        Debug.Log("Bullet Out");
+        _rb.isKinematic = true;
+        Debug.Assert(_networkObject != null);
+        Debug.Assert(_prefab != null);
+        NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
     }
-
-    public override void OnNetworkSpawn()
-    {
-        if (Camera.main.transform.rotation.z != 0)
-        {
-            _direction = -transform.up;
-        }
-        else
-        {
-            _direction = transform.up;
-        }
-    }
-    public void Play()
-    {
-        //transform.position = position;
-        _rb.isKinematic = false;
-        gameObject.SetActive(true);
-        //EnableServerRpc();
-    }
-    public void Play(Vector3 position)
-    {
-        transform.position = position;
-        _rb.isKinematic = false;
-        gameObject.SetActive(true);
-        //EnableServerRpc();
-    }
-
+    
     [ServerRpc(RequireOwnership = false)]
-    private void EnableServerRpc()
+    private void ReturnServerRpc()
     {
-        Debug.Log("EnableServerRpc");
-        gameObject.SetActive(true);
+        Debug.Log("Client -> Server Messsge : ReturnBullet");
+        NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void DisableServerRpc()
+    public NetworkObject NetworkObject
     {
-        Debug.Log("DisableServerRpc");
-        parent.Return(_networkObject);
+        set => _networkObject = value;
+        get => _networkObject;
+    }
+    public GameObject Prefab
+    {
+        set => _prefab = value;
+        get => _prefab;
     }
 }

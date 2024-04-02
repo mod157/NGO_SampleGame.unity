@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -8,79 +9,42 @@ public class BulletSpawner : NetworkBehaviour
     [SerializeField] private GameObject bulletObj;
     private Vector3 _bulletPosition;
     private NetworkObject _returnNetworkObject;
-    public void Shot(Vector3 newPosition)
+
+    private void Start()
     {
-        _bulletPosition = newPosition;
-        /*int index = -1;
-        for (int i = 0; i < spawnedBulletList.Count; i++)
-        {
-            if (!spawnedBulletList[i].activeSelf)
-            {
-                index = i;
-                UpdatePositionServerRpc(i);
-                break;
-            }
-        }
-
-        if (index == -1)
-        {
-           ShotServerRpc();
-        }*/
-
-        ShotServerRpc();
-        
+        NetworkManager.Singleton.OnServerStarted += SpawnBulletStart;
     }
 
-    public void Return(NetworkObject networkObject)
+    private void SpawnBulletStart()
     {
-        _returnNetworkObject = networkObject;
-        ReturnBulletServerRpc();
+        NetworkManager.Singleton.OnServerStarted -= SpawnBulletStart;
+    }
+
+    public void SpawnBullet(Vector3 playerPosition, Vector3 addPosition)
+    {
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            SpawnServerRpc( new Vector3(playerPosition.x, playerPosition.y - addPosition.y, playerPosition.z));
+            return;
+        }
+
+        SpawnBullet(new Vector3(playerPosition.x, playerPosition.y + addPosition.y, playerPosition.z));
+    }
+
+    private void SpawnBullet(Vector3 newPosition)
+    {
+        NetworkObject poolObject = NetworkObjectPool.Instance.GetNetworkObject(bulletObj, newPosition, Quaternion.identity);
+        BulletController bulletController = poolObject.GetComponent<BulletController>();
+        bulletController.NetworkObject = poolObject;
+        bulletController.Prefab = bulletObj;
+        if (!poolObject.IsSpawned) poolObject.Spawn(true);
     }
     
-    private BulletController CreateBullet()
-    {
-        GameObject newBullet = Instantiate(bulletObj);
-        NetworkObject no = newBullet.GetComponent<NetworkObject>();
-        no.Spawn(true);
-        
-        BulletController newBulletController = newBullet.GetComponent<BulletController>();
-        return newBulletController;
-    }
 
     [ServerRpc(RequireOwnership = false)]
-    private void ShotServerRpc()
+    private void SpawnServerRpc(Vector3 newPosition)
     {
-        NetworkObject poolObject = NetworkObjectPool.Instance.GetNetworkObject(bulletObj, _bulletPosition, Quaternion.identity);
-        BulletController bulletController = poolObject.GetComponent<BulletController>();
-        bulletController.parent = this;
-        bulletController.Play();
-        /* GameObject newBullet = Instantiate(bulletObj);
-         spawnedBulletList.Add(newBullet);
-
-         BulletController newBulletController = newBullet.GetComponent<BulletController>();
-         newBulletController.Play(bulletPosition);
-         newBulletController.parent = this;
-
-         NetworkObject no = newBullet.GetComponent<NetworkObject>();
-         no.Spawn(true);*/
+        Debug.Log("Client -> Server Messsge : SpawnBullet");
+        SpawnBullet(newPosition);
     }
-    [ServerRpc(RequireOwnership = false)]
-    public void ReturnBulletServerRpc()
-    {
-        if (_returnNetworkObject != null)
-        {
-            NetworkObjectPool.Instance.ReturnNetworkObject(_returnNetworkObject, bulletObj);
-            _returnNetworkObject = null;
-        }
-    }
-    /*
-    /*
-    [ServerRpc]
-    private void UpdatePositionServerRpc(int index)
-    {
-        BulletController selectBulletController = spawnedBulletList[index].GetComponent<BulletController>();
-        selectBulletController.Play(_bulletPosition);
-        NetworkObject no = selectBulletController.GetComponent<NetworkObject>();
-        no.Spawn(true);
-    }*/
 }
