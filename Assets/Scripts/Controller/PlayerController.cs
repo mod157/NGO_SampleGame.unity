@@ -6,16 +6,13 @@ using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField] private ulong clientID;
     [SerializeField] private Player playerName;
     [SerializeField] private Sprite[] sprites;
     [SerializeField] private List<GameObject> lifeList;
     
     private BulletSpawner _bulletSpawner;
     private NetworkObject _networkObject;
-    private ClientNetworkTransform _clientNetworkTransform;
     private SpriteRenderer _spriteRenderer;
-    private int _life;
     private float _moveSpeed;
     private float _shotDelay;
     private bool _isDelay;
@@ -31,16 +28,13 @@ public class PlayerController : NetworkBehaviour
     {
         _bulletSpawner = GameManager.Instance.BulletSpawner;
         _networkObject = GetComponent<NetworkObject>();
-        _clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        _life = GameManager.Instance.PlayerLife;
         _moveSpeed = GameManager.Instance.PlayerMoveSpeed;
         _shotDelay = GameManager.Instance.ShotDelay;
     }
+    
     private void Initialize()
     {
-        clientID = _networkObject.OwnerClientId;
-        
         if (_networkObject.OwnerClientId == 0)
         {
             playerName = Player.PlayerA;
@@ -183,5 +177,4 @@ public class PlayerController : NetworkBehaviour
         Debug.Log("ClientRpc - " + message);
         ApplyDamage();
     }
-    public ulong ClientID => clientID;
 }

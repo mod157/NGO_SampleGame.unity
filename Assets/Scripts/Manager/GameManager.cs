@@ -28,8 +28,10 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        if(NetworkManager.Singleton.IsServer)
+        if (NetworkManager.Singleton.IsServer)
+        {
             playerNum.Value = NetworkManager.Singleton.ConnectedClients.Count;
+        }
     }
     
     public void GameStart()
@@ -43,6 +45,8 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("GameEnd");
         _isGameStart = false;
         uiManager.ResetUI();
+        
+        StartCoroutine(GameReady());
     }
 
     private IEnumerator GameReady()

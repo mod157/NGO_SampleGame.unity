@@ -1,12 +1,15 @@
 using System;
 using Unity.Netcode;
+using Unity.Networking.Transport;
 using UnityEngine;
 
 [RequireComponent(typeof(NetworkManager))]
 public class CustomNetworkManager : MonoBehaviour
 {
+    [SerializeField] private UIManager uiManager;
     private NetworkManager _networkManager;
     
+    private int maxConnections = 2; // 최대 연결 가능한 클라이언트 수
     internal bool IsClient => _networkManager.IsClient;
     internal bool IsHost => _networkManager.IsHost;
     internal bool IsServer => _networkManager.IsServer;
@@ -19,11 +22,12 @@ public class CustomNetworkManager : MonoBehaviour
         _networkManager.OnServerStarted += OnServerStarted;
         _networkManager.OnServerStopped += OnServerStoped;
     }
-
+    
     private void OnClientConnected(ulong ClientId)
     {
-        if (IsServer && _networkManager.ConnectedClientsIds.Count > 2)
+        if (IsServer && GameManager.Instance.PlayerCount > maxConnections)
         {
+            Debug.Log("MaxClient Disconnect - " + ClientId);
             _networkManager.DisconnectClient(ClientId);
         }
 
@@ -51,5 +55,6 @@ public class CustomNetworkManager : MonoBehaviour
     private void OnServerStoped(bool isStop)
     {
         Debug.Log($"Server Stop");
+        uiManager.ResetUI();
     }
 }

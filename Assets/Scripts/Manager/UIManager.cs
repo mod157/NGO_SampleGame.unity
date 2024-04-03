@@ -38,7 +38,7 @@ public class UIManager : MonoBehaviour
     {
         btn_Host.gameObject.SetActive(false);
         btn_Client.gameObject.SetActive(false);
-        btn_Cencel.gameObject.SetActive(false);
+        btn_Cencel.gameObject.SetActive(true);
         progressRotate.OnProgressRotate(ProgressEnd);
     }
 
@@ -46,6 +46,7 @@ public class UIManager : MonoBehaviour
     {
         progressRotate.gameObject.SetActive(false);
         btn_Exit.gameObject.SetActive(false);
+        btn_Cencel.gameObject.SetActive(false);
     }
 
     public void ResetUI()
