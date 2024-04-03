@@ -9,7 +9,7 @@
 #define DEFAULT_DEBUG
 #endif
 
-#if !DEFAULT_DEBUG
+#if DEFAULT_DEBUG
 using System;
 using System.Text;
 using UnityEngine;

@@ -1,11 +1,14 @@
 using System;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport;
 using UnityEngine;
 
 [RequireComponent(typeof(NetworkManager))]
 public class CustomNetworkManager : MonoBehaviour
 {
+    [SerializeField] private string hostIP;
+    [SerializeField] private ushort hostPort;
     private NetworkManager _networkManager;
     
     private int maxConnections = 2; // 최대 연결 가능한 클라이언트 수
@@ -21,6 +24,12 @@ public class CustomNetworkManager : MonoBehaviour
         _networkManager.OnServerStarted += OnServerStarted;
         _networkManager.OnServerStopped += OnServerStoped;
         
+        
+        GetComponent<UnityTransport>().SetConnectionData(
+            hostIP,  // The IP address is a string
+            (ushort)hostPort, // The port number is an unsigned short
+            "0.0.0.0" // The server listen address is a string.
+        );
     }
     
     private void OnClientConnected(ulong ClientId)

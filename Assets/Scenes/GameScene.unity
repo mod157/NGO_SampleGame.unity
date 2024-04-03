@@ -1029,12 +1029,12 @@ MonoBehaviour:
   m_MaxPayloadSize: 6144
   m_HeartbeatTimeoutMS: 500
   m_ConnectTimeoutMS: 1000
-  m_MaxConnectAttempts: 60
+  m_MaxConnectAttempts: 2
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 127.0.0.1
+    Address: 192.168.50.50
     Port: 7777
-    ServerListenAddress: 127.0.0.1
+    ServerListenAddress: 0.0.0.0
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
@@ -1051,7 +1051,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3789edcbd04cf4eba8e0fd85464cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiManager: {fileID: 73396236}
+  hostIP: 192.168.50.50
+  hostPort: 7777
 --- !u!114 &942508196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1259,6 +1260,7 @@ MonoBehaviour:
   playerMoveSpeed: 50
   bulletSpeed: 50
   shotDelay: 0.25
+  _isGameStart: 0
 --- !u!114 &1172721623
 MonoBehaviour:
   m_ObjectHideFlags: 0
