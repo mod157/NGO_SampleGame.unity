@@ -343,6 +343,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: 0
+  minmaxX: {x: -30, y: 30}
   sprites:
   - {fileID: 21300000, guid: 233e916da370492429721e7d49c2e5fe, type: 3}
   - {fileID: 21300000, guid: 417614e26c6079e45980baaa964a115d, type: 3}

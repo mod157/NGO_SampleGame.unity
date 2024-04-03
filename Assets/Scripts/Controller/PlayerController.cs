@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine;
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private Player playerName;
+    [SerializeField] private Vector2 minmaxX;
     [SerializeField] private Sprite[] sprites;
     [SerializeField] private List<GameObject> lifeList;
     
@@ -16,7 +18,6 @@ public class PlayerController : NetworkBehaviour
     private float _moveSpeed;
     private float _shotDelay;
     private bool _isDelay;
-    private float _minX, _maxX;
     
     private enum Player
     {
@@ -120,6 +121,9 @@ public class PlayerController : NetworkBehaviour
                 transform.position -= direction * (_moveSpeed * Time.deltaTime);
                 break;
         }
+
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, minmaxX[0], minmaxX[1]),
+            transform.position.y, transform.position.z);
     }
     
     private void Shooting()

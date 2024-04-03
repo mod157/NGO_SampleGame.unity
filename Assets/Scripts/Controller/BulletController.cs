@@ -28,7 +28,6 @@ public class BulletController : NetworkBehaviour
         if (!IsServer) return;
         if (transform.position.y < _minmaxY[0] || transform.position.y > _minmaxY[1])
         {
-            NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
             _networkObject.Despawn();
         }
     }
@@ -47,7 +46,6 @@ public class BulletController : NetworkBehaviour
         if (!IsServer) return;
         Debug.Log("Bullet Out");
 
-        //NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
         _networkObject.Despawn();
     }
     

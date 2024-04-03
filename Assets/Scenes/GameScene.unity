@@ -1177,9 +1177,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiManager: {fileID: 73396236}
   bulletSpawner: {fileID: 1999648478}
-  playerLife: 3
   playerMoveSpeed: 50
-  bulletSpeed: 10
+  bulletSpeed: 50
   shotDelay: 0.25
 --- !u!114 &1172721623
 MonoBehaviour:
