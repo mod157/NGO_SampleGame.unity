@@ -64,14 +64,14 @@ public class PlayerController : NetworkBehaviour
         else
             enabled = false;
 
-        if (IsServer)
+        /*if (IsServer)
         {
             Camera.main.transform.rotation = Quaternion.identity;
         }
         else
         {
             Camera.main.transform.rotation = Quaternion.Euler(0f,0f,180f);
-        }
+        }*/
     }
     //Owner일 때 위치 설정
     public override void OnNetworkSpawn()
@@ -120,8 +120,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-   
-
     private void Move(Vector3 direction)
     {
         switch (playerName)
@@ -133,8 +131,6 @@ public class PlayerController : NetworkBehaviour
                 transform.position -= direction * (_moveSpeed * Time.deltaTime);
                 break;
         }
-        
-        //transform.position = new Vector3(Mathf.Clamp(transform.position.x, _minX, _maxX), 0f, 0f);
     }
     
     private void Shooting()
@@ -144,7 +140,7 @@ public class PlayerController : NetworkBehaviour
         _isDelay = true;
         
         Debug.Log(playerName + " - Shot");
-        _bulletSpawner.SpawnBullet(transform.position, _spriteRenderer.size);
+        _bulletSpawner.SpawnBullet(transform.position, _spriteRenderer.size, transform.up);
     }
     
     private void ApplyDamage()

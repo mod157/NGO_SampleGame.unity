@@ -20,31 +20,32 @@ public class BulletSpawner : NetworkBehaviour
         NetworkManager.Singleton.OnServerStarted -= SpawnBulletStart;
     }
 
-    public void SpawnBullet(Vector3 playerPosition, Vector3 addPosition)
+    public void SpawnBullet(Vector3 playerPosition, Vector3 addPosition, Vector3 direction)
     {
         if (!NetworkManager.Singleton.IsServer)
         {
-            SpawnServerRpc( new Vector3(playerPosition.x, playerPosition.y - addPosition.y, playerPosition.z));
+            SpawnServerRpc( new Vector3(playerPosition.x, playerPosition.y - addPosition.y, playerPosition.z), direction);
             return;
         }
 
-        SpawnBullet(new Vector3(playerPosition.x, playerPosition.y + addPosition.y, playerPosition.z));
+        SpawnBullet(new Vector3(playerPosition.x, playerPosition.y + addPosition.y, playerPosition.z), direction);
     }
 
-    private void SpawnBullet(Vector3 newPosition)
+    private void SpawnBullet(Vector3 newPosition, Vector3 direction)
     {
         NetworkObject poolObject = NetworkObjectPool.Instance.GetNetworkObject(bulletObj, newPosition, Quaternion.identity);
         BulletController bulletController = poolObject.GetComponent<BulletController>();
-        bulletController.NetworkObject = poolObject;
-        bulletController.Prefab = bulletObj;
+        bulletController.Direction = direction;
+        bulletController.SetNetworkObject = poolObject;
+        bulletController.SetPrefab = bulletObj;
         if (!poolObject.IsSpawned) poolObject.Spawn(true);
     }
     
 
     [ServerRpc(RequireOwnership = false)]
-    private void SpawnServerRpc(Vector3 newPosition)
+    private void SpawnServerRpc(Vector3 newPosition, Vector3 direction)
     {
         Debug.Log("Client -> Server Messsge : SpawnBullet");
-        SpawnBullet(newPosition);
+        SpawnBullet(newPosition, direction);
     }
 }

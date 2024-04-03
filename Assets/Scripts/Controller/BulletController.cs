@@ -13,7 +13,6 @@ public class BulletController : NetworkBehaviour
     [SerializeField] private GameObject _prefab;
     private float _force;
     private Rigidbody _rb;
-    private float _minY, _maxY;
     private Vector3 _direction;
 
     private void Awake()
@@ -22,25 +21,26 @@ public class BulletController : NetworkBehaviour
         _force = GameManager.Instance.BulletSpeed;
     }
 
-    public override void OnNetworkSpawn()
+    private void Start()
     {
-        _rb.isKinematic = false;
+        Debug.Log("--------------- Start");
     }
-
+    
     private void FixedUpdate()
     {
-        _rb.velocity = transform.up * _force;
+        if (_rb.isKinematic)
+            _rb.isKinematic = false;
+        
+        _rb.velocity = _direction * _force;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Wall")) return;
-        //if (!NetworkManager.Singleton.IsServer) return;
         Debug.Log("Bullet Out");
-        _rb.isKinematic = true;
-        Debug.Assert(_networkObject != null);
-        Debug.Assert(_prefab != null);
-        NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
+        
+        if (!IsServer)
+            ReturnServerRpc();
     }
     
     [ServerRpc(RequireOwnership = false)]
@@ -48,16 +48,28 @@ public class BulletController : NetworkBehaviour
     {
         Debug.Log("Client -> Server Messsge : ReturnBullet");
         NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
+        //ReturnClientRpc();
+    }
+    
+    [ClientRpc]
+    private void ReturnClientRpc()
+    {
+        Debug.Log("Server -> Client Messsge : ReturnBullet");
+        gameObject.SetActive(false);
     }
 
-    public NetworkObject NetworkObject
+    public NetworkObject SetNetworkObject
     {
         set => _networkObject = value;
-        get => _networkObject;
     }
-    public GameObject Prefab
+    
+    public GameObject SetPrefab
     {
         set => _prefab = value;
-        get => _prefab;
+    }
+
+    public Vector3 Direction
+    {
+        set => _direction = value;
     }
 }
