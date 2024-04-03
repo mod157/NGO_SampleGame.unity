@@ -7,14 +7,16 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
+    [Header("Componet")] 
+    [SerializeField] private UIManager uiManager;
+    [SerializeField] private BulletSpawner bulletSpawner;
+    [Space(15)]
+    
     [Header("PlayerOption")]
     [SerializeField] private int playerLife = 3;
     [SerializeField] private float playerMoveSpeed = 50f;
     [SerializeField] private float bulletSpeed = 50f;
     [SerializeField] private float shotDelay = 0.25f;
-
-
-    [SerializeField] private BulletSpawner bulletSpawner;
     private NetworkVariable<int> playerNum = new NetworkVariable<int>();
 
     private bool _isGameStart = false;
@@ -40,6 +42,7 @@ public class GameManager : Singleton<GameManager>
     {
         Debug.Log("GameEnd");
         _isGameStart = false;
+        uiManager.ResetUI();
     }
 
     private IEnumerator GameReady()
@@ -48,6 +51,8 @@ public class GameManager : Singleton<GameManager>
         {
             if (playerNum.Value == 2 && !_isGameStart)
             {
+                uiManager.Progress.IsExit = true;
+                yield return new WaitForSeconds(0.5f);
                 GameStart();
                 break;
             }
@@ -62,6 +67,5 @@ public class GameManager : Singleton<GameManager>
     public float ShotDelay => shotDelay;
     public bool IsGameStart => _isGameStart;
     public int PlayerCount => playerNum.Value;
-
     public BulletSpawner BulletSpawner => bulletSpawner;
 }

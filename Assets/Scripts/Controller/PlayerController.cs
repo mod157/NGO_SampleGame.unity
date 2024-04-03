@@ -64,14 +64,14 @@ public class PlayerController : NetworkBehaviour
         else
             enabled = false;
 
-        /*if (IsServer)
+        if (IsServer)
         {
             Camera.main.transform.rotation = Quaternion.identity;
         }
         else
         {
             Camera.main.transform.rotation = Quaternion.Euler(0f,0f,180f);
-        }*/
+        }
     }
     //Owner일 때 위치 설정
     public override void OnNetworkSpawn()
@@ -102,11 +102,6 @@ public class PlayerController : NetworkBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             Shooting();
-        }
-        
-        if (Input.GetKey(KeyCode.T))
-        {
-            UpdateLifeServerRpc("Life");
         }
     }
     
