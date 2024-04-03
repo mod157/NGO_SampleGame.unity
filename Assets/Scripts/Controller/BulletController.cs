@@ -14,18 +14,25 @@ public class BulletController : NetworkBehaviour
     private float _force;
     private Rigidbody _rb;
     private Vector3 _direction;
+    private Vector2 _minmaxY;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _force = GameManager.Instance.BulletSpeed;
+        _minmaxY = new Vector2(-25f, 25f);
     }
 
-    private void Start()
+    private void Update()
     {
-        Debug.Log("--------------- Start");
+        if (!IsServer) return;
+        if (transform.position.y < _minmaxY[0] || transform.position.y > _minmaxY[1])
+        {
+            NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
+            _networkObject.Despawn();
+        }
     }
-    
+
     private void FixedUpdate()
     {
         if (_rb.isKinematic)
@@ -37,27 +44,13 @@ public class BulletController : NetworkBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Wall")) return;
+        if (!IsServer) return;
         Debug.Log("Bullet Out");
-        
-        if (!IsServer)
-            ReturnServerRpc();
-    }
-    
-    [ServerRpc(RequireOwnership = false)]
-    private void ReturnServerRpc()
-    {
-        Debug.Log("Client -> Server Messsge : ReturnBullet");
-        NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
-        //ReturnClientRpc();
-    }
-    
-    [ClientRpc]
-    private void ReturnClientRpc()
-    {
-        Debug.Log("Server -> Client Messsge : ReturnBullet");
-        gameObject.SetActive(false);
-    }
 
+        //NetworkObjectPool.Instance.ReturnNetworkObject(_networkObject, _prefab);
+        _networkObject.Despawn();
+    }
+    
     public NetworkObject SetNetworkObject
     {
         set => _networkObject = value;
