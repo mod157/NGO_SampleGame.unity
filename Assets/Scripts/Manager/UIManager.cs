@@ -34,7 +34,7 @@ public class UIManager : MonoBehaviour
         });
     }
 
-    private void ReadyConnected()
+    public void ReadyConnected()
     {
         btn_Host.gameObject.SetActive(false);
         btn_Client.gameObject.SetActive(false);

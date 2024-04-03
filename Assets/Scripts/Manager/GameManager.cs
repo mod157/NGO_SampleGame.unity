@@ -13,7 +13,6 @@ public class GameManager : Singleton<GameManager>
     [Space(15)]
     
     [Header("PlayerOption")]
-    [SerializeField] private int playerLife = 3;
     [SerializeField] private float playerMoveSpeed = 50f;
     [SerializeField] private float bulletSpeed = 50f;
     [SerializeField] private float shotDelay = 0.25f;
@@ -43,10 +42,7 @@ public class GameManager : Singleton<GameManager>
     public void GameEnd()
     {
         Debug.Log("GameEnd");
-        _isGameStart = false;
-        uiManager.ResetUI();
-        
-        StartCoroutine(GameReady());
+        Reset();
     }
 
     private IEnumerator GameReady()
@@ -64,12 +60,28 @@ public class GameManager : Singleton<GameManager>
             yield return new WaitForEndOfFrame();
         }
     }
+
+    public void Ready()
+    {
+        uiManager.ReadyConnected();
+        StartCoroutine(GameReady());
+        
+        _isGameStart = false;
+    }
     
-    public int PlayerLife => playerLife;
+    public void Reset()
+    {
+        _isGameStart = false;
+        uiManager.ResetUI();
+        StartCoroutine(GameReady());
+    }
+    
     public float PlayerMoveSpeed => playerMoveSpeed;
     public float BulletSpeed => bulletSpeed;
     public float ShotDelay => shotDelay;
     public bool IsGameStart => _isGameStart;
     public int PlayerCount => playerNum.Value;
     public BulletSpawner BulletSpawner => bulletSpawner;
+
+   
 }

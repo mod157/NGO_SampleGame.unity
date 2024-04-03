@@ -21,6 +21,7 @@ public class CustomNetworkManager : MonoBehaviour
         _networkManager.OnClientDisconnectCallback += OnClientDisconnected;
         _networkManager.OnServerStarted += OnServerStarted;
         _networkManager.OnServerStopped += OnServerStoped;
+        
     }
     
     private void OnClientConnected(ulong ClientId)
@@ -44,7 +45,15 @@ public class CustomNetworkManager : MonoBehaviour
     private void OnClientDisconnected(ulong ClientId)
     {
         Debug.Log($"Client {ClientId} disconnected");
-        _networkManager.Shutdown();
+        if (!_networkManager.IsServer)
+        {
+            GameManager.Instance.Reset();
+        }
+        else
+        {
+            GameManager.Instance.Ready();
+        }
+        
     }
     
     private void OnServerStarted()
@@ -55,6 +64,20 @@ public class CustomNetworkManager : MonoBehaviour
     private void OnServerStoped(bool isStop)
     {
         Debug.Log($"Server Stop");
-        uiManager.ResetUI();
+        if(IsServer)
+            ResetServerRpc();
+    }
+
+    [ServerRpc]
+    private void ResetServerRpc()
+    {
+        Debug.Log("Reset");
+        ResetClientRpc();
+    }
+
+    [ClientRpc]
+    private void ResetClientRpc()
+    {
+        GameManager.Instance.Reset();
     }
 }

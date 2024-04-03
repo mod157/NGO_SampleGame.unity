@@ -81,7 +81,7 @@ public class PlayerController : NetworkBehaviour
     
     private void Update()
     {
-        if (!IsOwner || !Application.isFocused) return;
+        if (!IsOwner || !GameManager.Instance.IsGameStart || !Application.isFocused) return;
         
         if (Input.GetKey(KeyCode.LeftArrow))
         {
