@@ -102,10 +102,9 @@ public class PlayerController : NetworkBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsOwner) return;
-        
         if (other.CompareTag("Bullet"))
         {
+            other.GetComponent<BulletController>().DisableBullet();
             UpdateLifeServerRpc("Hit");
         }
     }
@@ -132,26 +131,23 @@ public class PlayerController : NetworkBehaviour
         
         _isDelay = true;
         
-        Debug.Log(playerName + " - Shot");
         _bulletSpawner.SpawnBullet(transform.position, _spriteRenderer.size, transform.up);
     }
     
     private void ApplyDamage()
     {
-        GameObject selectLifeObjet = null;
-        foreach (var life in lifeList)
+        int index;
+        for(index = 0; index < lifeList.Count; index++)
         {
-            if (life.activeSelf)
+            if (lifeList[index].activeSelf)
             {
-                selectLifeObjet = life;
+                lifeList[index].SetActive(false);
                 break;
             }
         }
-
-        if (selectLifeObjet != null)
-            selectLifeObjet.SetActive(false);
-        else
-            GameManager.Instance.GameEnd();
+        
+        if (index == 2)
+            GameManager.Instance.GameEnd(playerName.ToString());
     }
 
     IEnumerator ShotDelay()
@@ -168,7 +164,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
     
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void UpdateLifeServerRpc(string message)
     {
         Debug.Log("ServerRpc - " + message);

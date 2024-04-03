@@ -8,7 +8,6 @@ public class ProgressRotate : MonoBehaviour
     [SerializeField] private float progressRPM = 1;
     
     private RectTransform _rectTransform;
-    private bool _isExit;
     private void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
@@ -16,40 +15,34 @@ public class ProgressRotate : MonoBehaviour
 
     public void OnProgressRotate(Action action)
     {
+        Debug.Log("On Progress");
         gameObject.SetActive(true);
         StartCoroutine(Circle(action));
     }
 
     IEnumerator Circle(Action action)
     {
+        Debug.Log("Progress Circle");
         //Progress 유지 시간
         float timer = 0f;
         //회전 수에 따른 Value (+ 왼쪽 / - 오른쪽)
         float rpmValue = -progressRPM * 360;
 
-        _isExit = false;
-        
         while (timer <= loadingTimer)
         {
-            if (timer >= loadingTimer || _isExit)
+            if (timer >= loadingTimer || GameManager.Instance.IsGameStart)
                 break;
 
             timer += Time.deltaTime;
-            
+
             _rectTransform.rotation = Quaternion.Euler(0, 0, timer * rpmValue);
 
             yield return new WaitForEndOfFrame();
         }
-        
-        if(action != null)
-            action.Invoke();
-        
-        gameObject.SetActive(false);
-    }
 
-    public bool IsExit
-    {
-        set => _isExit = value;
-        get => _isExit;
+        if (action != null)
+            action.Invoke();
+
+        gameObject.SetActive(false);
     }
 }

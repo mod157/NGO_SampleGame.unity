@@ -82,15 +82,7 @@ public class NetworkObjectPool : Singleton<NetworkObjectPool>
     /// </summary>
     public void ReturnNetworkObject(NetworkObject networkObject, GameObject prefab)
     {
-        try
-        {
-            Debug.Log("ReturnNetworkObject");
-            m_PooledObjects[prefab].Release(networkObject);
-        }
-        catch (InvalidOperationException e)
-        {
-            Debug.LogError(e.ToString());
-        }
+        m_PooledObjects[prefab].Release(networkObject);
     }
 
     /// <summary>
@@ -164,7 +156,6 @@ class PooledPrefabInstanceHandler : INetworkPrefabInstanceHandler
 
     void INetworkPrefabInstanceHandler.Destroy(NetworkObject networkObject)
     {
-        Debug.Log("Pool Destroy");
         m_Pool.ReturnNetworkObject(networkObject, m_Prefab);
     }
 }

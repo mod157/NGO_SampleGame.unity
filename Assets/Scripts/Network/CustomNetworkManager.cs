@@ -6,7 +6,6 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkManager))]
 public class CustomNetworkManager : MonoBehaviour
 {
-    [SerializeField] private UIManager uiManager;
     private NetworkManager _networkManager;
     
     private int maxConnections = 2; // 최대 연결 가능한 클라이언트 수
@@ -71,7 +70,6 @@ public class CustomNetworkManager : MonoBehaviour
     [ServerRpc]
     private void ResetServerRpc()
     {
-        Debug.Log("Reset");
         ResetClientRpc();
     }
 

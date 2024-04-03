@@ -1,12 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Robotry.Utils;
+using System.Net.Sockets;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class GameManager : Singleton<GameManager>
+public class GameManager : Robotry.Utils.Singleton<GameManager>
 {
+    private const string GAMEOVER_MESSAGE_PLAYER1 = "Winner <color=red>Red</color>";
+    private const string GAMEOVER_MESSAGE_PLAYER2 = "Winner <color=blue>Blue</color>";
+    
     [Header("Componet")] 
     [SerializeField] private UIManager uiManager;
     [SerializeField] private BulletSpawner bulletSpawner;
@@ -16,9 +20,11 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private float playerMoveSpeed = 50f;
     [SerializeField] private float bulletSpeed = 50f;
     [SerializeField] private float shotDelay = 0.25f;
-    private NetworkVariable<int> playerNum = new NetworkVariable<int>();
 
+    [SerializeField]
     private bool _isGameStart = false;
+
+    private int _playerCount = 0;
 
     private void Awake()
     {
@@ -29,7 +35,7 @@ public class GameManager : Singleton<GameManager>
     {
         if (NetworkManager.Singleton.IsServer)
         {
-            playerNum.Value = NetworkManager.Singleton.ConnectedClients.Count;
+            PlayerCountServerRpc(NetworkManager.Singleton.ConnectedClients.Count);
         }
     }
     
@@ -39,20 +45,54 @@ public class GameManager : Singleton<GameManager>
         _isGameStart = true;
     }
     
-    public void GameEnd()
+    public void GameEnd(string text)
     {
         Debug.Log("GameEnd");
-        Reset();
+        _isGameStart = false;
+        switch (text)
+        {
+            case "PlayerA":
+                uiManager.GameEndUI(GAMEOVER_MESSAGE_PLAYER2, Shutdown);
+                break;
+            case "PlayerB":
+                uiManager.GameEndUI(GAMEOVER_MESSAGE_PLAYER1, Shutdown);
+                break;
+        }
+        
     }
 
+    private void Shutdown()
+    {
+        if (IsServer)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+    }
+
+    public void Ready()
+    {
+        Debug.Log("GM Ready");
+        _isGameStart = false;
+        uiManager.ReadyConnectedUI();
+        StartCoroutine(GameReady());
+    }
+    
+    public void Reset()
+    {
+        Debug.Log("GM Reset");
+        _playerCount = 0;
+        _isGameStart = false;
+        Debug.Log("PC - " + PlayerCount);
+        uiManager.ResetUI();
+        StartCoroutine(GameReady());
+    }
+    
     private IEnumerator GameReady()
     {
         while (true)
         {
-            if (playerNum.Value == 2 && !_isGameStart)
+            if (_playerCount == 2 && !_isGameStart)
             {
-                uiManager.Progress.IsExit = true;
-                yield return new WaitForSeconds(0.5f);
                 GameStart();
                 break;
             }
@@ -61,26 +101,32 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    public void Ready()
+    public override void OnDestroy()
     {
-        uiManager.ReadyConnected();
-        StartCoroutine(GameReady());
-        
-        _isGameStart = false;
+        base.OnDestroy();
+        if (!IsServer)
+        {
+        }
+        //NetworkManager.Singleton;
     }
-    
-    public void Reset()
+
+    [ServerRpc]
+    private void PlayerCountServerRpc(int count)
     {
-        _isGameStart = false;
-        uiManager.ResetUI();
-        StartCoroutine(GameReady());
+        PlayerCountClientRpc(count);
+    }
+
+    [ClientRpc]
+    private void PlayerCountClientRpc(int count)
+    {
+        _playerCount = count;
     }
     
     public float PlayerMoveSpeed => playerMoveSpeed;
     public float BulletSpeed => bulletSpeed;
     public float ShotDelay => shotDelay;
     public bool IsGameStart => _isGameStart;
-    public int PlayerCount => playerNum.Value;
+    public int PlayerCount => _playerCount;
     public BulletSpawner BulletSpawner => bulletSpawner;
 
    
