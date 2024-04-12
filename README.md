@@ -1,4 +1,4 @@
-# TakeHomeWork2024_LEESUNJAE
+# NGO_SampleGame
 
 ## 내용
     - 게임은 실시간 PvP 형식으로, 2인이 각자의 기기에서 게임에 접속
